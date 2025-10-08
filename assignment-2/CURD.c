@@ -1,9 +1,9 @@
 #include<stdio.h>
 
-void add_user();
-void read_file();
-void mod_user();
-void rm_user();
+void addUser();
+void readFile();
+void modifyUser();
+void removeUser();
 
 int main(){
     int choice;
@@ -14,19 +14,19 @@ int main(){
         printf("_________________________________________________\n");
         switch(choice){
             case 1:{
-                add_user();
+                addUser();
                 continue;
             }
             case 2:{
-                read_file();
+                readFile();
                 continue;
             }
             case 3:{
-                mod_user();
+                modifyUser();
                 continue;
             }
             case 4:{
-                rm_user();
+                removeUser();
                 continue;
             }
 
@@ -37,7 +37,7 @@ int main(){
     return 0;
 }
 
-void add_user(){
+void addUser(){
 
     FILE* fp=fopen("users.txt","a+");
     int ID;
@@ -55,7 +55,7 @@ void add_user(){
     printf("_________________________________________________");
 }
 
-void read_file(){
+void readFile(){
 
     FILE* fp=fopen("users.txt","r");
     char line[100];
@@ -67,7 +67,7 @@ void read_file(){
     fclose(fp);
 }
 
-void mod_user(){
+void modifyUser(){
 
     FILE* fp=fopen("users.txt","r");
     FILE* tmp=fopen("temp.txt","a+");
@@ -105,7 +105,7 @@ void mod_user(){
     fclose(tmp);
 }
 
-void rm_user(){
+void removeUser(){
     FILE* fp=fopen("users.txt","r");
     FILE* tmp=fopen("tmp.txt","a+");
 
