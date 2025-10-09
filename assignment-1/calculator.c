@@ -21,12 +21,12 @@ int main()
     char exp[100];
     printf("Enter your expression :");
     fgets(exp, sizeof(exp), stdin);
-    int i = 0;
-    while (exp[i] != '\0')
+    int sizeOfExpression = 0;
+    while (exp[sizeOfExpression] != '\0')
     {
-        i++;
+        sizeOfExpression++;
     }
-    int result = evaluateExpression(exp, i - 1);
+    int result = evaluateExpression(exp, sizeOfExpression - 1);
     printf("%d", result);
     return 0;
 }
