@@ -3,9 +3,9 @@
 typedef struct Student{
     int rollNumber;
     char name[20];
-    int marks1;
-    int marks2;
-    int marks3;
+    int physics;
+    int mathematics;
+    int chemistry;
 }Student;
 
 
@@ -23,9 +23,9 @@ int main(){
     {
         scanf("%d %s %d %d %d",&students[studentIndex].rollNumber,
                                &students[studentIndex].name,
-                               &students[studentIndex].marks1,
-                               &students[studentIndex].marks2,
-                               &students[studentIndex].marks3);
+                               &students[studentIndex].physics,
+                               &students[studentIndex].mathematics,
+                               &students[studentIndex].chemistry);
     }
 
     quickSort(students , 0 , studentCount-1);
@@ -34,8 +34,8 @@ int main(){
     {
         printf("\nRoll Number: %d\n",students[studentIndex].rollNumber);
         printf("Name: %s\n",students[studentIndex].name);
-        int totalMarks=students[studentIndex].marks1 + students[studentIndex].marks2
-                         + students[studentIndex].marks3 ;
+        int totalMarks=students[studentIndex].physics + students[studentIndex].mathematics
+                         + students[studentIndex].chemistry ;
         float averageMarks= totalMarks / 3;
 
         printf("Total: %d\n",totalMarks);
