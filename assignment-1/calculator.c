@@ -121,49 +121,49 @@ char getTopOperator()
 
 int evaluateExpression(char *expression, int size)
 {
-    int i = 0;
-    while (i < size)
+    int expressionIndex = 0;
+    while (expressionIndex < size)
     {
-        if (expression[i] == ' ')
+        if (expression[expressionIndex] == ' ')
         {
-            i++;
+            expressionIndex++;
             continue;
         }
-        if (expression[i] >= '0' && expression[i] <= '9')
+        if (expression[expressionIndex] >= '0' && expression[expressionIndex] <= '9')
         {
             int val = 0;
-            while (expression[i] >= '0' && expression[i] <= '9')
+            while (expression[expressionIndex] >= '0' && expression[expressionIndex] <= '9')
             {
-                val = val * 10 + (int)(expression[i] - '0');
-                i++;
+                val = val * 10 + (int)(expression[expressionIndex] - '0');
+                expressionIndex++;
             }
             pushOperand(val);
-        }else if(expression[i]=='('){
-            pushOperator(expression[i++]);
-        }else if(expression[i]==')'){
+        }else if(expression[expressionIndex]=='('){
+            pushOperator(expression[expressionIndex++]);
+        }else if(expression[expressionIndex]==')'){
             while(getTopOperator()!='('){
                 performComputation();
             }
             popOperator();
-            i++;
+            expressionIndex++;
         }
-        else if (expression[i] == '*' || expression[i] == '/' || expression[i] == '+' || expression[i] == '-')
+        else if (expression[expressionIndex] == '*' || expression[expressionIndex] == '/' || expression[expressionIndex] == '+' || expression[expressionIndex] == '-')
         {
             if (g_topOfOperatorStack == -1)
             {
-                pushOperator(expression[i++]);
+                pushOperator(expression[expressionIndex++]);
                 continue;
             }
-            if (getPrecedence(getTopOperator()) < getPrecedence(expression[i]))
-                pushOperator(expression[i++]);
+            if (getPrecedence(getTopOperator()) < getPrecedence(expression[expressionIndex]))
+                pushOperator(expression[expressionIndex++]);
             else
             {
-                while (getPrecedence(getTopOperator()) >= getPrecedence(expression[i]))
+                while (getPrecedence(getTopOperator()) >= getPrecedence(expression[expressionIndex]))
                 {
                     performComputation();
                 }
-                pushOperator(expression[i]);
-                i++;
+                pushOperator(expression[expressionIndex]);
+                expressionIndex++;
             }
         }
         else
