@@ -18,15 +18,15 @@ int evaluateExpression(char *exp, int size);
 
 int main()
 {
-    char exp[100];
+    char expression[100];
     printf("Enter your expression :");
-    fgets(exp, sizeof(exp), stdin);
+    fgets(expression, sizeof(expression), stdin);
     int sizeOfExpression = 0;
-    while (exp[sizeOfExpression] != '\0')
+    while (expression[sizeOfExpression] != '\0')
     {
         sizeOfExpression++;
     }
-    int result = evaluateExpression(exp, sizeOfExpression - 1);
+    int result = evaluateExpression(expression, sizeOfExpression - 1);
     printf("%d", result);
     return 0;
 }
@@ -119,50 +119,50 @@ char getTopOperator()
     return operatorStack[g_topOfOperatorStack];
 }
 
-int evaluateExpression(char *exp, int size)
+int evaluateExpression(char *expression, int size)
 {
     int i = 0;
     while (i < size)
     {
-        if (exp[i] == ' ')
+        if (expression[i] == ' ')
         {
             i++;
             continue;
         }
-        if (exp[i] >= '0' && exp[i] <= '9')
+        if (expression[i] >= '0' && expression[i] <= '9')
         {
             int val = 0;
-            while (exp[i] >= '0' && exp[i] <= '9')
+            while (expression[i] >= '0' && expression[i] <= '9')
             {
-                val = val * 10 + (int)(exp[i] - '0');
+                val = val * 10 + (int)(expression[i] - '0');
                 i++;
             }
             pushOperand(val);
-        }else if(exp[i]=='('){
-            pushOperator(exp[i++]);
-        }else if(exp[i]==')'){
+        }else if(expression[i]=='('){
+            pushOperator(expression[i++]);
+        }else if(expression[i]==')'){
             while(getTopOperator()!='('){
                 performComputation();
             }
             popOperator();
             i++;
         }
-        else if (exp[i] == '*' || exp[i] == '/' || exp[i] == '+' || exp[i] == '-')
+        else if (expression[i] == '*' || expression[i] == '/' || expression[i] == '+' || expression[i] == '-')
         {
             if (g_topOfOperatorStack == -1)
             {
-                pushOperator(exp[i++]);
+                pushOperator(expression[i++]);
                 continue;
             }
-            if (getPrecedence(getTopOperator()) < getPrecedence(exp[i]))
-                pushOperator(exp[i++]);
+            if (getPrecedence(getTopOperator()) < getPrecedence(expression[i]))
+                pushOperator(expression[i++]);
             else
             {
-                while (getPrecedence(getTopOperator()) >= getPrecedence(exp[i]))
+                while (getPrecedence(getTopOperator()) >= getPrecedence(expression[i]))
                 {
                     performComputation();
                 }
-                pushOperator(exp[i]);
+                pushOperator(expression[i]);
                 i++;
             }
         }
