@@ -11,7 +11,7 @@ typedef struct Student{
 
 void quickSort(Student *students , int lowIndex , int highIndex);
 int partation(Student *students , int lowIndex , int highIndex);
-
+int calculatingTotalMarks(Student student);
 
 int main(){
     int studentCount;
@@ -34,9 +34,8 @@ int main(){
     {
         printf("\nRoll Number: %d\n",students[studentIndex].rollNumber);
         printf("Name: %s\n",students[studentIndex].name);
-        int totalMarks=students[studentIndex].physics + students[studentIndex].mathematics
-                         + students[studentIndex].chemistry ;
-        float averageMarks= totalMarks / 3;
+        int totalMarks = calculatingTotalMarks(students[studentIndex]);
+        float averageMarks = totalMarks / 3;
 
         printf("Total: %d\n",totalMarks);
         printf("Average: %.2f\n",averageMarks );
@@ -98,4 +97,9 @@ void quickSort(Student *students , int lowIndex , int highIndex){
         quickSort(students , lowIndex , pivot-1);
         quickSort(students , pivot+1 , highIndex);
     }
+}
+
+int calculatingTotalMarks(Student student ){
+    return student.physics + student.mathematics
+                         + student.chemistry ;
 }
