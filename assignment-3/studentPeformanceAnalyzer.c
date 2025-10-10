@@ -12,6 +12,7 @@ typedef struct Student{
 void quickSort(Student *students , int lowIndex , int highIndex);
 int partation(Student *students , int lowIndex , int highIndex);
 int calculatingTotalMarks(Student student);
+void printRollNumber(Student *students, int studentCount , int currentStudent);
 
 int main(){
     int studentCount;
@@ -59,9 +60,7 @@ int main(){
         printf("\n");
     }
 
-    for(int studentIndex=0 ; studentIndex < studentCount ; studentIndex++){
-        printf("%d\t",students[studentIndex].rollNumber);
-    }
+    printRollNumber(students , studentCount , 0);
 
     return 0;
 }
@@ -102,4 +101,12 @@ void quickSort(Student *students , int lowIndex , int highIndex){
 int calculatingTotalMarks(Student student ){
     return student.physics + student.mathematics
                          + student.chemistry ;
+}
+
+void printRollNumber(Student *students , int studentCount , int currentStudent){
+    if(currentStudent == studentCount)
+        return;
+
+    printf("%d\t",students[currentStudent].rollNumber);
+    printRollNumber(students , studentCount , currentStudent + 1);
 }
