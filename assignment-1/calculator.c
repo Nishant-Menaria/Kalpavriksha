@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include<stdlib.h>
+#define STACK_SIZE 1000
 
-int operandStack[100];
-char operatorStack[100];
+int operandStack[STACK_SIZE];
+char operatorStack[STACK_SIZE];
 
-int g_topOfOperandStack = -1;
-int g_topOfOperatorStack = -1;
+int gTopOfOperandStack = -1;
+int gTopOfOperatorStack = -1;
 
 void performComputation();
 int getPrecedence(char val);
@@ -55,7 +56,7 @@ void performComputation()
         if (rightOperand == 0)
         {
             printf("dividing by zero");
-            return ;
+            exit(1);
         }
         result = leftOperand / rightOperand;
     }
@@ -75,48 +76,50 @@ int getPrecedence(char val)
 
 void pushOperand(int val)
 {
-    if (g_topOfOperandStack == 100)
+    if (gTopOfOperandStack == 100)
     {
         printf("operand Stack overflow");
-        return;
+        exit(1);
     }
-    operandStack[++g_topOfOperandStack] = val;
+    operandStack[++gTopOfOperandStack] = val;
 }
 
 void pushOperator(char val)
 {
-    if (g_topOfOperatorStack == 100)
+    if (gTopOfOperatorStack == 100)
     {
         printf("operator stack overflow");
-        return;
+        exit(1);
     }
-    operatorStack[++g_topOfOperatorStack] = val;
+    operatorStack[++gTopOfOperatorStack] = val;
 }
 
 int popOperand()
 {
-    if (g_topOfOperandStack == -1)
+    if (gTopOfOperandStack == -1)
     {
         printf("operand stack underflow");
-        exit(0);
+        exit(1);
     }
-    return operandStack[g_topOfOperandStack--];
+    return operandStack[gTopOfOperandStack--];
 }
 
 char popOperator()
 {
-    if (g_topOfOperatorStack == -1)
+    if (gTopOfOperatorStack == -1)
     {
         printf("operator stack underflow");
-        exit(0);
+        exit(1);
     }
-    return operatorStack[g_topOfOperatorStack--];
+    return operatorStack[gTopOfOperatorStack--];
 }
 char getTopOperator()
 {
-    if (g_topOfOperatorStack == -1)
-        return '0';
-    return operatorStack[g_topOfOperatorStack];
+    if (gTopOfOperatorStack == -1){
+        printf("No Operator To Peform Operation On");
+        exit(1);
+    }
+    return operatorStack[gTopOfOperatorStack];
 }
 
 int evaluateExpression(char *expression, int size)
@@ -149,7 +152,7 @@ int evaluateExpression(char *expression, int size)
         }
         else if (expression[expressionIndex] == '*' || expression[expressionIndex] == '/' || expression[expressionIndex] == '+' || expression[expressionIndex] == '-')
         {
-            if (g_topOfOperatorStack == -1)
+            if (gTopOfOperatorStack == -1)
             {
                 pushOperator(expression[expressionIndex++]);
                 continue;
@@ -172,9 +175,9 @@ int evaluateExpression(char *expression, int size)
             return 0;
         }
     }
-    while (g_topOfOperatorStack != -1)
+    while (gTopOfOperatorStack != -1)
     {
         performComputation();
     }
-    return operandStack[g_topOfOperandStack];
+    return operandStack[gTopOfOperandStack];
 }
