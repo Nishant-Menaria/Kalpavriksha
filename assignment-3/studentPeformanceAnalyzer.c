@@ -32,18 +32,19 @@ int main()
         {
 
             printf("Please Enter , Valid Roll Number , Name and Marks\n");
+            while(getchar()!='\n');
             continue;
         }
 
-        if (students[studentIndex].rollNumber < 0)
+        if (students[studentIndex].rollNumber <= 0)
         {
             printf("Please Enter a Valid Roll Number\n");
             continue;
         }
 
-        if (students[studentIndex].chemistry < 0 || students[studentIndex].physics < 0 || students[studentIndex].mathematics < 0)
+        if ( (students[studentIndex].chemistry < 0 || students[studentIndex].chemistry >100 )  || (students[studentIndex].physics < 0 || students[studentIndex].physics >100 ) || (students[studentIndex].chemistry < 0 || students[studentIndex].physics >100 ))
         {
-            printf("Please Enter Marks Greater Than zero\n");
+            printf("Please Enter marks in valid range(0-100)\n");
             continue;
         }
 
