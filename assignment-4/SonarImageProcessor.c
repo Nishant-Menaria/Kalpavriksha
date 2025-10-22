@@ -31,8 +31,8 @@ int main()
     }
     for (int row = 0; row < matrixSize; row++)
     {
-        matrix[row] = (int *)malloc(sizeof(int) * matrixSize);
-        if (matrix[row] == NULL)
+        *(matrix + row ) = (int *)malloc(sizeof(int) * matrixSize);
+        if ( *(matrix + row) == NULL)
         {
             printf("Memory allocation fail for column\n");
             exit(1);
