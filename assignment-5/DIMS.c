@@ -27,6 +27,10 @@ int main()
     scanf("%d", &gSize);
 
     Product *products = (Product *)calloc(gSize, sizeof(Product));
+    if(products==NULL){
+        printf("dynamic memory allocation fails\n");
+        exit(1);
+    }
 
     for (int productIndex = 0; productIndex < gSize; productIndex++)
     {
@@ -103,6 +107,10 @@ Product* addNewProduct(Product *products){
 
     gSize++;
     products=(Product *)realloc(products ,gSize * sizeof(Product) );
+    if(products==NULL){
+        printf("Dynamic memory allocation fails\n");
+        exit(1);
+    }
     printf("\nEnter new product details:");
     printf("\nProduct ID:");
     scanf("%d",&products[gSize-1].ID);
@@ -165,7 +173,7 @@ void searchByName(Product *products){
     for(int productIndex=0; productIndex < gSize ; productIndex++){
         int productNameIndex=0;
         int targetIndex=0;
-        while( productName[productNameIndex] !='\0' || products[productIndex].name[targetIndex]!='\0' ){
+        while( productName[productNameIndex] !='\0' && products[productIndex].name[targetIndex]!='\0' ){
             if( matchCharacter(productName[productNameIndex] , products[productIndex].name[targetIndex])){
                 productNameIndex++;
                 targetIndex++;
@@ -221,9 +229,14 @@ Product* deleteByID(Product *products){
     if(flag){
         printf("Product deleted Successfully!\n");
         products=(Product*)realloc(products,sizeof(Product)* (--gSize));
+        if(products==NULL){
+            printf("Dynamic memory allocation fails\n");
+            exit(1);
+        }
         return products;
     }else{
         printf("No matching Product for Given Product ID\n");
+        return products;
     }
 }
 
