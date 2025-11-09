@@ -335,7 +335,7 @@ void dfCommand(){
     printf("Total Blocks : %d\n",MAX_BLOCK);
     printf("Used Blocks : %d\n",MAX_BLOCK - gNumberOfFreeNodes);
     printf("Free Block : %d\n",gNumberOfFreeNodes);
-    printf("Disk Usage : %.2lf%%\n", (MAX_BLOCK  - gNumberOfFreeNodes) / 100.00);
+    printf("Disk Usage : %.2lf%%\n", ((double)(MAX_BLOCK  - gNumberOfFreeNodes) / MAX_BLOCK ) *100);
 }
 
 int allocateMemory(){
