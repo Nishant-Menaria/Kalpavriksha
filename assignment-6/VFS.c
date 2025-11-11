@@ -247,6 +247,7 @@ void cdCommand(FileNode **PWD, char *name)
         }
         temp = temp->nextSibling;
     } while (temp != *PWD);
+    printf("%s is not a directory.\n", name);
     return;
 }
 
@@ -316,11 +317,13 @@ void createCommand(FileNode *PWD, char *name)
 
 void pwdCommand(FileNode *PWD, FileNode *root)
 {
-    if (PWD == root)
+    if (PWD == root){
+        printf("/");
         return;
+    }
 
     pwdCommand(PWD->parent, root);
-    printf("/%s", PWD->name);
+    printf("%s/", PWD->name);
 }
 
 FreeNode *createFreeNode(int index)
@@ -431,7 +434,9 @@ void dfCommand()
 int allocateMemory()
 {
     int index = gFreeNodeHead->index;
+    FreeNode* toDelete=gFreeNodeHead;
     gFreeNodeHead = gFreeNodeHead->next;
+    free(toDelete);
     gNumberOfFreeNodes--;
     if (gFreeNodeHead != NULL)
         gFreeNodeHead->prev = NULL;
@@ -472,6 +477,7 @@ void freeAllMemory(FileNode *root)
 {
     if (root == NULL || root->child == NULL)
         return;
+
     FileNode *temp = root->child;
     do
     {
