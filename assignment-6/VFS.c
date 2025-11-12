@@ -27,8 +27,10 @@ typedef struct FileNode
 int gNumberOfFreeNodes = MAX_BLOCK;
 FreeNode *gFreeNodeHead = NULL;
 FreeNode *gFreeNodeTail = NULL;
-char virtualDisk[MAX_BLOCK][BLOCK_SIZE];
+char** virtualDisk;
 
+void initializeVirtualDisk();
+void freeVirtualDisk();
 FreeNode *createFreeNode(int index);
 FreeNode *createFreeNodeList();
 FileNode *createFileNode(int type, FileNode *parent, char *name);
@@ -51,6 +53,7 @@ void freeDoublyLinkedList();
 
 int main()
 {
+    initializeVirtualDisk();
     gFreeNodeHead = createFreeNodeList();
 
     FileNode *root = createFileNode(0, NULL, "/");
@@ -58,7 +61,7 @@ int main()
 
     printf("$ ./vfs\n/ >Compact VFS - ready. Type 'exit' to quit.\n");
 
-    char terminalInput[60];
+    char* terminalInput=(char*)malloc(sizeof(char)*60);
     while (1)
     {
         printf("%s>", PWD->name);
@@ -72,6 +75,7 @@ int main()
         if (strcmp(command, "exit") == 0)
         {
             printf("Memory released. Exiting program...\n");
+            freeVirtualDisk();
             freeAllMemory(root);
             freeDoublyLinkedList();
             free(root);
@@ -125,7 +129,10 @@ int main()
         else if (strcmp(command, "write") == 0)
         {
             char *fileContent = strtok(NULL, "\n");
-            writeCommand(PWD, name, fileContent);
+            if(fileContent!=NULL)
+                writeCommand(PWD, name, fileContent);
+            else 
+                printf("Plese,Also enter the content of the file.\n");
         }
         else if (strcmp(command, "read") == 0)
         {
@@ -234,6 +241,8 @@ void cdCommand(FileNode **PWD, char *name)
     FileNode *temp = (*PWD)->child;
     do
     {
+        if(temp==NULL)
+            break;
         if (strcmp(temp->name, name) == 0)
         {
             if (temp->type == 1)
@@ -377,6 +386,27 @@ void writeCommand(FileNode *PWD, char *name, char *fileContent)
         while (fileContent[sizeOfContent] != '\0')
             sizeOfContent++;
 
+        if(file->blockPointerCount>0){
+            int choice;
+            printf("This will overwrite the file.\n");
+            while(1){
+                printf("Press 1 to continue or 0 to exit:");
+                scanf("%d",&choice);
+                getchar();
+                if(choice==0)
+                    return;
+                else if(choice==1){
+                    for(int block = 0 ; block < file->blockPointerCount ; block++){
+                        deallocateMemory(file->blockPointer[block]);
+                    }
+                    file->blockPointerCount=0;
+                    break;
+                }else{
+                    printf("Enter a valid choice number.\n");
+                }
+            }
+        }
+
         int BlockNeeded = ceil((double)sizeOfContent / BLOCK_SIZE);
 
         if (BlockNeeded > gNumberOfFreeNodes)
@@ -412,6 +442,10 @@ void readCommand(FileNode *PWD, char *name)
     }
     else
     {
+        if(file->blockPointerCount==0){
+            printf("(empty)\n");
+            return;
+        }
         for (int block = 0; block < file->blockPointerCount; block++)
         {
             for (int i = 0; i < BLOCK_SIZE && virtualDisk[file->blockPointer[block]][i] != '\0'; i++)
@@ -501,4 +535,19 @@ void freeDoublyLinkedList()
             gFreeNodeHead->prev = NULL;
         free(toDelete);
     }
+}
+
+void initializeVirtualDisk(){
+    virtualDisk = (char**)malloc(sizeof(char*)*MAX_BLOCK);
+
+    for(int block = 0 ; block < MAX_BLOCK ; block++){
+        virtualDisk[block]=(char*)malloc(sizeof(char)*BLOCK_SIZE);
+    }
+}
+
+void freeVirtualDisk(){
+    for(int block = 0 ; block < MAX_BLOCK ; block++){
+        free(virtualDisk[block]);
+    }
+    free(virtualDisk);
 }
