@@ -92,7 +92,7 @@ int main(){
 
         switch(choice){
             case 1:{
-                addPlayer(head);
+                addPlayer(&head[0]);
                 sortTeams(0,9,&sortedTeams[0]);
                 break;
             }
@@ -269,7 +269,7 @@ void addToTeam(MyPlayer* player , teamNode** head){
 
 void addPlayer(MyPlayer** head){
     int teamID;
-    MyPlayer* newPlayer=(MyPlayer*)malloc(sizeof(MyPlayer));
+    Player newPlayer;
     do{
         printf("Enter Team ID to add player:");
         scanf("%d",&teamID);
@@ -279,43 +279,43 @@ void addPlayer(MyPlayer** head){
 
     switch(teamID){
         case 1:{
-            newPlayer->player.team="Afghanistan";
+            newPlayer.team="Afghanistan";
             break;
         }
         case 2:{
-            newPlayer->player.team="Australia";
+            newPlayer.team="Australia";
             break;
         }
         case 3:{
-            newPlayer->player.team="Bangladesh";
+            newPlayer.team="Bangladesh";
             break;
         }
         case 4:{
-            newPlayer->player.team="England";
+            newPlayer.team="England";
             break;
         }
         case 5:{
-            newPlayer->player.team="India";
+            newPlayer.team="India";
             break;
         }
         case 6:{
-            newPlayer->player.team="New Zealand";
+            newPlayer.team="New Zealand";
             break;
         }
         case 7:{
-            newPlayer->player.team="Pakistan";
+            newPlayer.team="Pakistan";
             break;
         }
         case 8:{
-            newPlayer->player.team="South Africa";
+            newPlayer.team="South Africa";
             break;
         }
         case 9:{
-            newPlayer->player.team="Sri Lanka";
+            newPlayer.team="Sri Lanka";
             break;
         }
         case 10:{
-            newPlayer->player.team="West Indies";
+            newPlayer.team="West Indies";
             break;
         }
     }
@@ -323,14 +323,16 @@ void addPlayer(MyPlayer** head){
     printf("Enter Player Details:\n");
     do{
         printf("Player ID:");
-        scanf("%d",&newPlayer->player.id);
-        if(newPlayer->player.id<0)
+        scanf("%d",&newPlayer.id);
+        if(newPlayer.id<0)
             printf("Enter a ID greater than zero.\n");
-    }while(newPlayer->player.id < 0);
+    }while(newPlayer.id < 0);
 
-    while(getchar()!='\n');
+    // while(getchar()!='\n');
+    char* name=(char*)malloc(50);
     printf("Name:");
-    scanf("%[^\n]",&newPlayer->player.name);
+    scanf(" %[^\n]",name);
+    newPlayer.name=name;
 
     int role;
     do{
@@ -341,63 +343,63 @@ void addPlayer(MyPlayer** head){
     }while(role < 1 || role>3);
 
     if(role==1)
-        newPlayer->player.role="Batsman";
+        newPlayer.role="Batsman";
     else if(role==2){
-        newPlayer->player.role="Bowler";
+        newPlayer.role="Bowler";
     }else   
-        newPlayer->player.role="All-rounder";
+        newPlayer.role="All-rounder";
 
     do{
         printf("Total Runs:");
-        scanf("%d",&newPlayer->player.totalRuns);
-        if(newPlayer->player.totalRuns < 0)
+        scanf("%d",&newPlayer.totalRuns);
+        if(newPlayer.totalRuns < 0)
             printf("Enter a Valid Runs.\n");
-    }while(newPlayer->player.totalRuns<0);
+    }while(newPlayer.totalRuns<0);
 
     do{
         printf("Batting Average:");
-        scanf("%f",&newPlayer->player.battingAverage);
-        if(newPlayer->player.battingAverage < 0)
+        scanf("%f",&newPlayer.battingAverage);
+        if(newPlayer.battingAverage < 0)
             printf("Enter a Valid batting Average.\n");
-    }while(newPlayer->player.battingAverage<0);
+    }while(newPlayer.battingAverage<0);
 
     do{
         printf("Strike Rate:");
-        scanf("%f",&newPlayer->player.strikeRate);
-        if(newPlayer->player.strikeRate < 0)
+        scanf("%f",&newPlayer.strikeRate);
+        if(newPlayer.strikeRate < 0)
             printf("Enter a Valid strike Rate.\n");
-    }while(newPlayer->player.strikeRate<0);
+    }while(newPlayer.strikeRate<0);
 
     do{
         printf("Wickets:");
-        scanf("%d",&newPlayer->player.wickets);
-        if(newPlayer->player.wickets < 0)
+        scanf("%d",&newPlayer.wickets);
+        if(newPlayer.wickets < 0)
             printf("Enter a Valid wickets.\n");
-    }while(newPlayer->player.wickets<0);
+    }while(newPlayer.wickets<0);
 
     do{
         printf("Economy Rate:");
-        scanf("%f",&newPlayer->player.economyRate);
-        if(newPlayer->player.economyRate < 0)
+        scanf("%f",&newPlayer.economyRate);
+        if(newPlayer.economyRate < 0)
             printf("Enter a Valid economy Rate.\n");
-    }while(newPlayer->player.economyRate<0);
+    }while(newPlayer.economyRate<0);
 
 
+    MyPlayer* playerPtr=createPlayer(newPlayer);
 
-    if(strcmp(newPlayer->player.role, "Batsman")==0){
+    if(strcmp(newPlayer.role, "Batsman")==0){
+        insertIntoList(  playerPtr  , (head+0));
 
-        insertIntoList(  newPlayer  , head + 0);
-
-    }else if(strcmp(newPlayer->player.role, "Bowler")==0){
-        insertIntoList(   newPlayer , head + 1);
+    }else if(strcmp(newPlayer.role, "Bowler")==0){
+        insertIntoList(   playerPtr , (head+1));
     }else{
-        insertIntoList(  newPlayer , head + 2);
+        insertIntoList(  playerPtr , (head+2));
     }
 
-    insertIntoTeamsList(newPlayer);
-    printf("\n");
+    insertIntoTeamsList(playerPtr);
     printf("Player added successfully to Team %s\n",gTeams[teamID-1]->teamName);
 }
+
 
 void displayAllPlayersOfSpecificTeam(){
     int teamID;
@@ -416,11 +418,6 @@ void displayAllPlayersOfSpecificTeam(){
     for(int i = 0 ; i < 3 ; i++){
         teamNode* temp = gTeams[teamID-1]->role[i];
         while(temp!=NULL){
-
-            if(temp->player==NULL){
-                printf("ERROR: temp->player is NULL!\n");
-                exit(1);
-            }
             printf("%d\t%s\t\t%s\t\t%d\t%.1f\t%.1f\t%d\t%.1f\t%.2f\n",
                 temp->player->player.id,
                 temp->player->player.name,
@@ -431,6 +428,7 @@ void displayAllPlayersOfSpecificTeam(){
                 temp->player->player.wickets,
                 temp->player->player.economyRate,
                 temp->player->peformanceIndex);
+            
             temp=temp->next;
         }
     }
@@ -508,8 +506,8 @@ void displayAllPlayersOfSpecificRole(MyPlayer** head){
             temp->player.wickets,
             temp->player.economyRate,
             temp->peformanceIndex);
-            
-        temp=temp->next;
+        if(temp!=NULL)  
+            temp=temp->next;
     }
 }
 
