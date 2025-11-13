@@ -234,7 +234,7 @@ void cdCommand(FileNode **PWD, char *name)
 {
     if ((*PWD)->child == NULL)
     {
-        printf("NO %s directory exists", name);
+        printf("NO %s directory exists\n", name);
         return;
     }
 
@@ -255,7 +255,7 @@ void cdCommand(FileNode **PWD, char *name)
             return;
         }
         temp = temp->nextSibling;
-    } while (temp != *PWD);
+    } while (temp != (*PWD)->child);
     printf("%s is not a directory.\n", name);
     return;
 }
