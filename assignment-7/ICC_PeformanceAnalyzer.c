@@ -238,7 +238,8 @@ void seperatingByRole(MyPlayer* player, int teamID){
         addToTeam( player , &(gTeams[teamID-1]->role[2]) );
     }
 
-    gTeams[teamID-1]->averageBattingStrikeRate = ( ( gTeams[teamID-1]->averageBattingStrikeRate * (gTeams[teamID-1]->playerCount -1) ) + player->player.strikeRate ) /  gTeams[teamID-1]->playerCount;
+    if(strcmp( player->player.role, "Batsman")==0 || strcmp( player->player.role, "All-rounder")==0)
+        gTeams[teamID-1]->averageBattingStrikeRate = ( ( gTeams[teamID-1]->averageBattingStrikeRate * (gTeams[teamID-1]->playerCount -1) ) + player->player.strikeRate ) /  gTeams[teamID-1]->playerCount;
 }
 
 void addToTeam(MyPlayer* player , teamNode** head){
@@ -523,7 +524,6 @@ void sortTeams(int low , int high , Team** teamList){
 void merge(int low ,int mid , int high , Team** teamList){
     int n1=mid-low + 1;
     int n2=high - mid;
-    printf("\n");
     Team** arr1=(Team**)malloc(sizeof(Team*)*n1);
     Team** arr2=(Team**)malloc(sizeof(Team*)*n2);
 
