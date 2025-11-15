@@ -55,20 +55,20 @@ node* swapingInPair(node* head){
     if(head==NULL || head->next==NULL)
         return head;
 
-    
-    node* forward=head->next->next;
-
-    head->next->next=head;
-    head=head->next;
-    head->next->next=forward;
-    node* prev=head->next;
-
-    while(forward!=NULL || forward->next!=NULL){
-        prev->next->next=prev->next;
-        prev->next=prev->next->next;
-        prev->next->next=forward;
-        prev=prev->next->next;
-        forward=forward->next->next;
+    node* prev=NULL;
+    node* curr=head;
+    node* temp=NULL;
+    while(curr!=NULL && curr->next!=NULL){
+        temp=curr->next;
+        curr->next=temp->next;
+        temp->next=curr;
+        if(prev==NULL){
+            head=temp;
+        }else{
+            prev->next=temp;
+        }
+        prev=curr;
+        curr=curr->next;
     }
     return head;
 }
