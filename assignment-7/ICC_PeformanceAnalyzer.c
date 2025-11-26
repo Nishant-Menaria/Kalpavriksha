@@ -122,6 +122,10 @@ int main(){
 
 MyPlayer* createPlayer(Player player){
     MyPlayer* myPlayer = (MyPlayer*)malloc(sizeof(MyPlayer));
+    if(myPlayer==NULL){
+        printf("Memory alocation fails.\n");
+        exit(1);
+    }
     myPlayer->player=player;
     myPlayer->next=NULL;
 
@@ -193,53 +197,28 @@ teamNode* createTeamNode(MyPlayer* player){
 
 void insertIntoTeamsList(MyPlayer* player){
 
-    if(strcmp(player->player.team , "Afghanistan")==0){
-        seperatingByRole(player , 1);
+    for(int teamIndex=0 ; teamIndex<teamCount ; teamIndex++){
+        if(strcmp(player->player.team , teams[teamIndex])==0){
+            seperatingByRole(player, teamIndex);
+            break;
+        }
     }
-    else if(strcmp(player->player.team , "Australia")==0){
-        seperatingByRole(player ,2);
-    }
-    else if(strcmp(player->player.team , "Bangladesh")==0){
-        seperatingByRole(player ,3);
-    }
-    else if(strcmp(player->player.team , "England")==0){
-        seperatingByRole(player ,4);
-    }
-    else if(strcmp(player->player.team , "India")==0){
-        seperatingByRole(player ,5);
-    }
-    else if(strcmp(player->player.team , "New Zealand")==0){
-        seperatingByRole(player ,6);
-    }
-    else if(strcmp(player->player.team , "Pakistan")==0){
-        seperatingByRole(player ,7);
-    }
-    else if(strcmp(player->player.team , "South Africa")==0){
-        seperatingByRole(player ,8);
-    }
-    else if(strcmp(player->player.team , "Sri Lanka")==0){
-        seperatingByRole(player ,9);
-    }
-    else if(strcmp(player->player.team , "West Indies")==0){
-        seperatingByRole(player ,10);
-    }
-
 }
 
 void seperatingByRole(MyPlayer* player, int teamID){
 
-    gTeams[teamID-1]->playerCount++;
+    gTeams[teamID]->playerCount++;
 
     if(strcmp( player->player.role, "Batsman")==0){
-        addToTeam(  player , &(gTeams[teamID-1]->role[0]) );
+        addToTeam(  player , &(gTeams[teamID]->role[0]) );
     }else if(strcmp(player->player.role, "Bowler")==0){
-        addToTeam( player , &(gTeams[teamID-1]->role[1]) );
+        addToTeam( player , &(gTeams[teamID]->role[1]) );
     }else{
-        addToTeam( player , &(gTeams[teamID-1]->role[2]) );
+        addToTeam( player , &(gTeams[teamID]->role[2]) );
     }
 
     if(strcmp( player->player.role, "Batsman")==0 || strcmp( player->player.role, "All-rounder")==0)
-        gTeams[teamID-1]->averageBattingStrikeRate = ( ( gTeams[teamID-1]->averageBattingStrikeRate * (gTeams[teamID-1]->playerCount -1) ) + player->player.strikeRate ) /  gTeams[teamID-1]->playerCount;
+        gTeams[teamID]->averageBattingStrikeRate = ( ( gTeams[teamID]->averageBattingStrikeRate * (gTeams[teamID]->playerCount -1) ) + player->player.strikeRate ) /  gTeams[teamID]->playerCount;
 }
 
 void addToTeam(MyPlayer* player , teamNode** head){
@@ -329,7 +308,6 @@ void addPlayer(MyPlayer** head){
             printf("Enter a ID greater than zero.\n");
     }while(newPlayer.id < 0);
 
-    // while(getchar()!='\n');
     char* name=(char*)malloc(50);
     printf("Name:");
     scanf(" %[^\n]",name);
@@ -416,8 +394,8 @@ void displayAllPlayersOfSpecificTeam(){
     printf("ID\tName\t\tRole\t\tRuns\tAvg\tSR\tWkts\tER\tperf.Index\n\n");
     printf("================================================\n\n");
 
-    for(int i = 0 ; i < 3 ; i++){
-        teamNode* temp = gTeams[teamID-1]->role[i];
+    for(int roleIndex = 0 ; roleIndex < 3 ; roleIndex++){
+        teamNode* temp = gTeams[teamID-1]->role[roleIndex];
         while(temp!=NULL){
             printf("%d\t%s\t\t%s\t\t%d\t%.1f\t%.1f\t%d\t%.1f\t%.2f\n",
                 temp->player->player.id,
@@ -455,13 +433,13 @@ void displayTopPlayerOfSpecificTeam(){
             printf("Enter a Valid Role.\n");
     }while(role < 1 || role>3);
 
-    int k;
+    int numberOfPlayers;
     printf("Enter number of players:");
-    scanf("%d",&k);
+    scanf("%d",&numberOfPlayers);
 
     teamNode* temp=gTeams[teamID-1]->role[role-1];
 
-    while(temp!=NULL && k>0){
+    while(temp!=NULL && numberOfPlayers>0){
     printf("%d\t%s\t\t%s\t\t%d\t%.1f\t%.1f\t%d\t%.1f\t%.2f\n",
             temp->player->player.id,
             temp->player->player.name,
@@ -474,7 +452,7 @@ void displayTopPlayerOfSpecificTeam(){
             temp->player->peformanceIndex);
             
         temp=temp->next;
-        k--;
+        numberOfPlayers--;
     }
 
 }
@@ -522,45 +500,45 @@ void sortTeams(int low , int high , Team** teamList){
 }
 
 void merge(int low ,int mid , int high , Team** teamList){
-    int n1=mid-low + 1;
-    int n2=high - mid;
-    Team** arr1=(Team**)malloc(sizeof(Team*)*n1);
-    Team** arr2=(Team**)malloc(sizeof(Team*)*n2);
+    int sizeOfFirstHalf=mid-low + 1;
+    int sizeOfSecondHalf=high - mid;
+    Team** arr1=(Team**)malloc(sizeof(Team*)*sizeOfFirstHalf);
+    Team** arr2=(Team**)malloc(sizeof(Team*)*sizeOfSecondHalf);
 
-    for(int i = 0 ; i< n1 ;i++){
-        arr1[i] = teamList[low+i];
+    for(int index = 0 ; index< sizeOfFirstHalf ;index++){
+        arr1[index] = teamList[low+index];
     }
 
-    for(int i = 0 ; i< n2 ;i++){
-        arr2[i] = teamList[mid+i+1];
+    for(int index = 0 ; index< sizeOfSecondHalf ;index++){
+        arr2[index] = teamList[mid+index+1];
     }
 
-    int i=0;
-    int j =0;
-    int k=low;
+    int arr1Index=0;
+    int arr2Index =0;
+    int mergeArrayIndex=low;
 
-    while(i<n1 && j<n2){
+    while(arr1Index<sizeOfFirstHalf && arr2Index<sizeOfSecondHalf){
 
-        if( arr1[i]->averageBattingStrikeRate  >= arr2[j]->averageBattingStrikeRate){
-           teamList[k] = arr1[i];
-            i++;
+        if( arr1[arr1Index]->averageBattingStrikeRate  >= arr2[arr2Index]->averageBattingStrikeRate){
+           teamList[mergeArrayIndex] = arr1[arr1Index];
+            arr1Index++;
         }else{
-            teamList[k] = arr2[j];
-            j++;
+            teamList[mergeArrayIndex] = arr2[arr2Index];
+            arr2Index++;
         }
-        k++;
+        mergeArrayIndex++;
     }
 
-    while(i<n1){
-        teamList[k] = arr1[i];
-        i++;
-        k++;
+    while(arr1Index<sizeOfFirstHalf){
+        teamList[mergeArrayIndex] = arr1[arr1Index];
+        arr1Index++;
+        mergeArrayIndex++;
     }
 
-    while(j<n2){
-        teamList[k] = arr2[j];
-        j++;
-        k++;
+    while(arr2Index<sizeOfSecondHalf){
+        teamList[mergeArrayIndex] = arr2[arr2Index];
+        arr2Index++;
+        mergeArrayIndex++;
     }
     free(arr1);
     free(arr2);
@@ -573,8 +551,7 @@ void printTeams(Team** teamList){
     printf("ID\tTeamName\t\tAvg Bat SR\t\tTotal Players\n");
     printf("==========================================================================\n\n");
 
-    for(int i = 0 ; i< 10 ; i++){
-        printf("%d\t%s\t\t%.1f\t%d\n",teamList[i]->teamID,teamList[i]->teamName,teamList[i]->averageBattingStrikeRate,teamList[i]->playerCount);
+    for(int teamIndex = 0 ; teamIndex< 10 ; teamIndex++){
+        printf("%d\t%s\t\t%.1f\t%d\n",teamList[teamIndex]->teamID,teamList[teamIndex]->teamName,teamList[teamIndex]->averageBattingStrikeRate,teamList[teamIndex]->playerCount);
     }
-
 }
