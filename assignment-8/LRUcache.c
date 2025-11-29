@@ -9,25 +9,32 @@ typedef struct queue{
     struct queue* prev;
 }queue;
 
+typedef struct{
+    queue* head;
+    queue* tail;
+    queue** hashMap;
+    int cacheSize;
+    int count;
+}LRUCache;
+
 
 queue** gHashmap;
 int nodeInLinkList;
 int gSizeOfCache;
 
-void createCache();
+LRUCache* createCache(int size);
 int hashFunction(int key);
 queue* creadteDoublyNode(char* data,int key);
-char* get(int key,queue** head , queue** tail);
-void put(int key , char* data,queue** head , queue** tail);
-queue* insertToQueue(char* data, int key , queue** head , queue** tail);
-void insertToHashMap(queue* node , int key);
-void moveToHeadAfterGet(queue* node,queue** head , queue** tail);
-int findInHashMap(int key);
+char* get(int key, LRUCache* ptr);
+void put(int key , char* data, LRUCache* ptr);
+queue* insertToQueue(char* data, int key ,  LRUCache* ptr);
+void insertToHashMap(queue* node , int key , LRUCache* ptr);
+void moveToHeadAfterGet(queue* node, LRUCache* ptr);
+int findInHashMap(int key , LRUCache* ptr);
 int stringToDigit(char* s);
 
 int main(){
-    queue* head=NULL;
-    queue* tail=NULL;
+    LRUCache* ptr=NULL;
     char terminalInput[50];
     while(1){
         scanf(" %[^\n]",terminalInput);
@@ -42,8 +49,7 @@ int main(){
             printf("please enter size between 1-1000:");
             scanf("%d",&size);
         }
-        gSizeOfCache=size;
-        createCache();
+        ptr=createCache(size);
         break;
     }
 
@@ -57,9 +63,9 @@ int main(){
             exit(0);
         
         if(strcmp(command, "put")==0){
-            put(key,data,&head,&tail);
+            put(key,data,ptr);
         }else if(strcmp(command,"get")==0){
-            printf("%s\n",get(key,&head,&tail));
+            printf("%s\n",get(key,ptr));
         }else{
             printf("please enter a valid command.\n");
         }
@@ -67,12 +73,17 @@ int main(){
 }
 
 
-void createCache(){
-    gHashmap=(queue**)calloc(gSizeOfCache,sizeof(queue*));
-    if(gHashmap==NULL){
+LRUCache* createCache(int size){
+    LRUCache* temp=(LRUCache*)calloc(1,sizeof(LRUCache));
+    temp->hashMap=(queue**)calloc(size,sizeof(queue*));
+    if(temp==NULL ||  temp->hashMap==NULL){
         printf("Dynamic memory allocation fails.\n");
-        return;
+        exit(1);
     }
+    temp->head=temp->tail=NULL;
+    temp->cacheSize=size;
+    temp->count=0;
+    return temp;
 }
 
 int hashFunction(int key){
@@ -92,89 +103,89 @@ queue* creadteDoublyNode(char* data, int key){
     return newNode;
 }
 
-queue* insertToQueue(char* data ,int key,queue** head , queue** tail){
+queue* insertToQueue(char* data ,int key,LRUCache* ptr){
     queue* newNode=creadteDoublyNode(data,key);
-    if(nodeInLinkList==gSizeOfCache){
-        int index=findInHashMap((*tail)->key);
+    if(ptr->cacheSize==ptr->count){
+        int index=findInHashMap(ptr->tail->key,ptr);
         if(index!=-1)
-            gHashmap[index]=NULL;
+            ptr->hashMap[index]=NULL;
 
-        queue* toDelete=(*tail);
+        queue* toDelete=ptr->tail;
 
-        if((*tail)->prev!=NULL){
-            *tail=(*tail)->prev;
-            (*tail)->next=NULL;
+        if(ptr->tail->prev!=NULL){
+            ptr->tail=ptr->tail->prev;
+            ptr->tail->next=NULL;
         }else{
-            *head=*tail=NULL;
+            ptr->head=ptr->tail=NULL;
         }
 
         free(toDelete);
-        nodeInLinkList--;
+        ptr->count--;
     }
-    if(*head==NULL){
-        *head=newNode;
-        *tail=newNode;
+    if(ptr->head==NULL){
+        ptr->head=newNode;
+        ptr->tail=newNode;
     }else{
-        newNode->next=*head;
-        (*head)->prev=newNode;
-        *head=newNode;
+        newNode->next=ptr->head;
+        ptr->head->prev=newNode;
+        ptr->head=newNode;
     }
-    nodeInLinkList++;
+    ptr->count++;
     return newNode;
 }
 
-void insertToHashMap(queue* node , int key ){
+void insertToHashMap(queue* node , int key , LRUCache* ptr){
     int index=hashFunction(key);
 
-    for(int i = 0 ; i < gSizeOfCache ; i++){
-        int try= (index + i)%gSizeOfCache;
+    for(int i = 0 ; i < ptr->cacheSize ; i++){
+        int try= (index + i)% (ptr->cacheSize);
 
-        if(gHashmap[try]==NULL){
-            gHashmap[try]=node;
+        if( ptr->hashMap[try]==NULL){
+            ptr->hashMap[try]=node;
             return;
         }
     }
 }
 
-char* get(int key,queue** head , queue** tail){
+char* get(int key,LRUCache* ptr){
     int index=hashFunction(key);
 
-    for(int i = 0 ; i < gSizeOfCache ; i++){
-        int try= (index + i)%gSizeOfCache;
+    for(int i = 0 ; i < ptr->cacheSize ; i++){
+        int try= (index + i)% (ptr->cacheSize);
 
-        if(gHashmap[try]==NULL) continue;
+        if( ptr->hashMap[try]==NULL) continue;
 
-        if(gHashmap[try]->key==key){
-            moveToHeadAfterGet(gHashmap[try],head,tail);
-            return gHashmap[try]->data;
+        if( ptr->hashMap[try]->key==key){
+            moveToHeadAfterGet( ptr->hashMap[try],ptr);
+            return ptr->hashMap[try]->data;
         }
     }
 
     return "null";
 }
 
-int findInHashMap(int key){
+int findInHashMap(int key , LRUCache* ptr){
     int index=hashFunction(key);
 
-    for(int i = 0 ; i < gSizeOfCache ; i++){
-        int try= (index + i)%gSizeOfCache;
+    for(int i = 0 ; i < ptr->cacheSize ; i++){
+        int try= (index + i)% (ptr->cacheSize);
 
-        if(gHashmap[try]==NULL)  continue;
+        if( ptr->hashMap[try]==NULL)  continue;
 
-        if(gHashmap[try]->key==key)
+        if(ptr->hashMap[try]->key==key)
             return try;
     }
     return -1;
 }
 
-void put(int key , char* data ,queue** head , queue** tail){
+void put(int key , char* data , LRUCache* ptr){
     char* copy=strdup(data);
-    int index=findInHashMap(key);
+    int index=findInHashMap(key,ptr);
     if(index==-1){
-        insertToHashMap(insertToQueue(copy,key,head,tail),key);
+        insertToHashMap(insertToQueue(copy,key,ptr),key,ptr);
     }else{
-        gHashmap[index]->data=copy;
-        moveToHeadAfterGet(gHashmap[index],head,tail);
+        ptr->hashMap[index]->data=copy;
+        moveToHeadAfterGet(gHashmap[index],ptr);
     }
 }
 
@@ -188,21 +199,21 @@ int stringToDigit(char* number){
     return digit;
 }
 
-void moveToHeadAfterGet(queue* node,queue** head , queue** tail){
+void moveToHeadAfterGet(queue* node,LRUCache* ptr){
     if(node->prev==NULL)
         return;
     else if(node->next==NULL){
-        *tail=(*tail)->prev;
-        (*tail)->next=NULL;
-        node->next=*head;
+        ptr->tail=ptr->tail->prev;
+        ptr->tail->next=NULL;
+        node->next=ptr->head;
         node->prev=NULL;
-        *head=node;
+        ptr->head=node;
         return;
     }
     
     node->prev->next=node->next;
     node->next->prev=node->prev;
     node->prev=NULL;
-    node->next=*head;
-    *head=node;
+    node->next=ptr->head;
+    ptr->head=node;
 }
