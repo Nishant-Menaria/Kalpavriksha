@@ -18,12 +18,8 @@ typedef struct{
 }LRUCache;
 
 
-queue** gHashmap;
-int nodeInLinkList;
-int gSizeOfCache;
-
 LRUCache* createCache(int size);
-int hashFunction(int key);
+int hashFunction(int key , int LRUSize);
 queue* creadteDoublyNode(char* data,int key);
 char* get(int key, LRUCache* ptr);
 void put(int key , char* data, LRUCache* ptr);
@@ -86,8 +82,8 @@ LRUCache* createCache(int size){
     return temp;
 }
 
-int hashFunction(int key){
-    return key%gSizeOfCache;
+int hashFunction(int key, int LRUSize){
+    return key% LRUSize;
 }
 
 queue* creadteDoublyNode(char* data, int key){
@@ -135,7 +131,7 @@ queue* insertToQueue(char* data ,int key,LRUCache* ptr){
 }
 
 void insertToHashMap(queue* node , int key , LRUCache* ptr){
-    int index=hashFunction(key);
+    int index=hashFunction(key,ptr->cacheSize);
 
     for(int i = 0 ; i < ptr->cacheSize ; i++){
         int try= (index + i)% (ptr->cacheSize);
@@ -148,7 +144,7 @@ void insertToHashMap(queue* node , int key , LRUCache* ptr){
 }
 
 char* get(int key,LRUCache* ptr){
-    int index=hashFunction(key);
+    int index=hashFunction(key , ptr->cacheSize);
 
     for(int i = 0 ; i < ptr->cacheSize ; i++){
         int try= (index + i)% (ptr->cacheSize);
@@ -165,7 +161,7 @@ char* get(int key,LRUCache* ptr){
 }
 
 int findInHashMap(int key , LRUCache* ptr){
-    int index=hashFunction(key);
+    int index=hashFunction(key , ptr->cacheSize);
 
     for(int i = 0 ; i < ptr->cacheSize ; i++){
         int try= (index + i)% (ptr->cacheSize);
@@ -185,7 +181,7 @@ void put(int key , char* data , LRUCache* ptr){
         insertToHashMap(insertToQueue(copy,key,ptr),key,ptr);
     }else{
         ptr->hashMap[index]->data=copy;
-        moveToHeadAfterGet(gHashmap[index],ptr);
+        moveToHeadAfterGet(ptr->hashMap[index],ptr);
     }
 }
 
