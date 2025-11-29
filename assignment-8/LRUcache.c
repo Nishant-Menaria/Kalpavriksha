@@ -9,9 +9,7 @@ typedef struct queue{
     struct queue* prev;
 }queue;
 
-#define Deleted (queue*)0xFFFFFFFF
-queue* gHead;
-queue* gTail;
+
 queue** gHashmap;
 int nodeInLinkList;
 int gSizeOfCache;
@@ -19,18 +17,20 @@ int gSizeOfCache;
 void createCache();
 int hashFunction(int key);
 queue* creadteDoublyNode(char* data,int key);
-char* get(int key);
-void put(int key , char* data);
-queue* insertToQueue(char* data, int key);
+char* get(int key,queue** head , queue** tail);
+void put(int key , char* data,queue** head , queue** tail);
+queue* insertToQueue(char* data, int key , queue** head , queue** tail);
 void insertToHashMap(queue* node , int key);
-void moveToHeadAfterGet(queue* node);
+void moveToHeadAfterGet(queue* node,queue** head , queue** tail);
 int findInHashMap(int key);
 int stringToDigit(char* s);
 
 int main(){
+    queue* head=NULL;
+    queue* tail=NULL;
     char terminalInput[50];
-    scanf(" %[^\n]",terminalInput);
     while(1){
+        scanf(" %[^\n]",terminalInput);
         char* command=strtok(terminalInput," ");
         if(command==NULL || strcmp(command, "createCache")!=0){
             printf("please initilize the cache first.\n");
@@ -48,7 +48,7 @@ int main(){
     }
 
     while(1){
-        scanf(" %[^\n]",&terminalInput);
+        scanf(" %[^\n]",terminalInput);
         char* command=strtok(terminalInput," ");
         int key = stringToDigit(strtok(NULL , " "));
         char* data = strtok(NULL , " ");
@@ -57,9 +57,9 @@ int main(){
             exit(0);
         
         if(strcmp(command, "put")==0){
-            put(key,data);
+            put(key,data,&head,&tail);
         }else if(strcmp(command,"get")==0){
-            printf("%s\n",get(key));
+            printf("%s\n",get(key,&head,&tail));
         }else{
             printf("please enter a valid command.\n");
         }
@@ -92,32 +92,32 @@ queue* creadteDoublyNode(char* data, int key){
     return newNode;
 }
 
-queue* insertToQueue(char* data ,int key){
+queue* insertToQueue(char* data ,int key,queue** head , queue** tail){
     queue* newNode=creadteDoublyNode(data,key);
     if(nodeInLinkList==gSizeOfCache){
-        int index=findInHashMap(gTail->key);
+        int index=findInHashMap((*tail)->key);
         if(index!=-1)
-            gHashmap[index]=Deleted;
+            gHashmap[index]=NULL;
 
-        queue* toDelete=gTail;
+        queue* toDelete=(*tail);
 
-        if(gTail->prev!=NULL){
-            gTail=gTail->prev;
-            gTail->next=NULL;
+        if((*tail)->prev!=NULL){
+            *tail=(*tail)->prev;
+            (*tail)->next=NULL;
         }else{
-            gHead=gTail=NULL;
+            *head=*tail=NULL;
         }
 
         free(toDelete);
         nodeInLinkList--;
     }
-    if(gHead==NULL){
-        gHead=newNode;
-        gTail=newNode;
+    if(*head==NULL){
+        *head=newNode;
+        *tail=newNode;
     }else{
-        newNode->next=gHead;
-        gHead->prev=newNode;
-        gHead=newNode;
+        newNode->next=*head;
+        (*head)->prev=newNode;
+        *head=newNode;
     }
     nodeInLinkList++;
     return newNode;
@@ -127,27 +127,25 @@ void insertToHashMap(queue* node , int key ){
     int index=hashFunction(key);
 
     for(int i = 0 ; i < gSizeOfCache ; i++){
-        int try= (index + i*i)%gSizeOfCache;
+        int try= (index + i)%gSizeOfCache;
 
-        if(gHashmap[try]==NULL || gHashmap[try]==Deleted){
+        if(gHashmap[try]==NULL){
             gHashmap[try]=node;
             return;
         }
     }
 }
 
-char* get(int key){
+char* get(int key,queue** head , queue** tail){
     int index=hashFunction(key);
 
     for(int i = 0 ; i < gSizeOfCache ; i++){
-        int try= (index + i*i)%gSizeOfCache;
+        int try= (index + i)%gSizeOfCache;
 
-        if(gHashmap[try]==NULL) return "null";
-
-        if(gHashmap[try]==Deleted) continue;
+        if(gHashmap[try]==NULL) continue;
 
         if(gHashmap[try]->key==key){
-            moveToHeadAfterGet(gHashmap[try]);
+            moveToHeadAfterGet(gHashmap[try],head,tail);
             return gHashmap[try]->data;
         }
     }
@@ -159,11 +157,9 @@ int findInHashMap(int key){
     int index=hashFunction(key);
 
     for(int i = 0 ; i < gSizeOfCache ; i++){
-        int try= (index + i*i)%gSizeOfCache;
+        int try= (index + i)%gSizeOfCache;
 
-        if(gHashmap[try]==NULL) return -1;
-
-        if(gHashmap[try]==Deleted)  continue;
+        if(gHashmap[try]==NULL)  continue;
 
         if(gHashmap[try]->key==key)
             return try;
@@ -171,42 +167,42 @@ int findInHashMap(int key){
     return -1;
 }
 
-void put(int key , char* data){
+void put(int key , char* data ,queue** head , queue** tail){
     char* copy=strdup(data);
     int index=findInHashMap(key);
     if(index==-1){
-        insertToHashMap(insertToQueue(copy,key),key);
+        insertToHashMap(insertToQueue(copy,key,head,tail),key);
     }else{
         gHashmap[index]->data=copy;
-        moveToHeadAfterGet(gHashmap[index]);
+        moveToHeadAfterGet(gHashmap[index],head,tail);
     }
 }
 
-int stringToDigit(char* s){
-    if(s==NULL)
+int stringToDigit(char* number){
+    if(number==NULL)
         return -1;
     int digit=0;
-    for(int i = 0 ; s[i]!='\0' ; i++){
-        digit=digit *10 +(s[i] - '0');
+    for(int index = 0; number[index]!='\0'; index++){
+        digit=digit *10 +(number[index] - '0');
     }
     return digit;
 }
 
-void moveToHeadAfterGet(queue* node){
+void moveToHeadAfterGet(queue* node,queue** head , queue** tail){
     if(node->prev==NULL)
         return;
     else if(node->next==NULL){
-        gTail=gTail->prev;
-        gTail->next=NULL;
-        node->next=gHead;
+        *tail=(*tail)->prev;
+        (*tail)->next=NULL;
+        node->next=*head;
         node->prev=NULL;
-        gHead=node;
+        *head=node;
         return;
     }
     
     node->prev->next=node->next;
     node->next->prev=node->prev;
     node->prev=NULL;
-    node->next=gHead;
-    gHead=node;
+    node->next=*head;
+    *head=node;
 }
