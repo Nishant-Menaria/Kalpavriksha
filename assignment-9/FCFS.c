@@ -90,35 +90,37 @@ int main(){
             currProcess=dequeueFromReadyQueue( &(fcfsInstance->readyQueue) );
         }
 
-            queueNode* temp=fcfsInstance->watingQueue->head;
-            if(temp){
-                temp->pcbPointer->inputTimeRemaning--;
-                if(temp->pcbPointer->inputTimeRemaning==0){
-                    insertToQueue( &(fcfsInstance->readyQueue ), dequeueFromWatingQueue( &(fcfsInstance->watingQueue) , temp->pcbPointer) );
-                } 
-                temp=temp->next;
+        if(currProcess){
+            currProcess->brustTimeremaning--;
+            if( currProcess->brustTimeremaning == 0 ){
+                printf("%d\t%d\n",currProcess->pID,executingTime);
+                currProcess->TAT = executingTime;
+                currProcess->WT= currProcess->TAT - currProcess->brustTime;
+                insertToQueue(&(fcfsInstance->terminatedQueue) , currProcess);
+                currProcess->status=TERMINATED;
+                currProcess=NULL;
+            }else if( currProcess->IoStart>0 && (currProcess->brustTime - currProcess->brustTimeremaning) == currProcess->IoStart){
+                insertToQueue(&(fcfsInstance->watingQueue) , currProcess);
+                currProcess->status=WAITING;
+                currProcess=NULL;
+            }else if( currProcess->killTime>0 && currProcess->killTime==executingTime){
+                insertToQueue(&(fcfsInstance->terminatedQueue) , currProcess);
+                currProcess->TAT=currProcess->WT=0;
+                currProcess->status=KILLED; 
+                currProcess=NULL;
             }
+        }
 
-            if(currProcess){
-                currProcess->brustTimeremaning--;
-                if( currProcess->brustTimeremaning == 0 ){
-                    currProcess->TAT = executingTime;
-                    currProcess->WT= currProcess->TAT - currProcess->brustTime;
-                    insertToQueue(&(fcfsInstance->terminatedQueue) , currProcess);
-                    currProcess->status=TERMINATED;
-                    currProcess=NULL;
-                }else if( currProcess->IoStart>0 && currProcess->IoStart==executingTime){
-                    insertToQueue(&(fcfsInstance->watingQueue) , currProcess);
-                    currProcess->status=WAITING;
-                    currProcess=NULL;
-                }else if( currProcess->killTime>0 && currProcess->killTime==executingTime){
-                    insertToQueue(&(fcfsInstance->terminatedQueue) , currProcess);
-                    currProcess->TAT=currProcess->WT=0;
-                    currProcess->status=KILLED;
-                    currProcess=NULL;
-                }
-            }
-            executingTime++;
+        queueNode* temp=fcfsInstance->watingQueue->head;
+        if(temp){
+            temp->pcbPointer->inputTimeRemaning--;
+            if(temp->pcbPointer->inputTimeRemaning==0){
+                insertToQueue( &(fcfsInstance->readyQueue ), dequeueFromWatingQueue( &(fcfsInstance->watingQueue) , temp->pcbPointer) );
+            } 
+            temp=temp->next;
+        }
+
+        executingTime++;
         
     }
     printProcesses(fcfsInstance);
