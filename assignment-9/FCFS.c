@@ -53,6 +53,8 @@ PCB* dequeueFromReadyQueue(queue** queuePointer);
 PCB* dequeueFromWatingQueue(queue** queuePointer , PCB* processPointer);
 queueNode* createQueueNode(PCB* process);
 void initializingKillTime(FCFS* fcfsinstance,char* terminalInput);
+void freeQueue(FCFS* fcfsInstance);
+void freeHashMap(FCFS* fcfsInstance);
 
 
 
@@ -90,6 +92,15 @@ int main(){
             currProcess=dequeueFromReadyQueue( &(fcfsInstance->readyQueue) );
         }
 
+        queueNode* temp=fcfsInstance->watingQueue->head;
+        if(temp){
+            temp->pcbPointer->inputTimeRemaning--;
+            if(temp->pcbPointer->inputTimeRemaning==0){
+                insertToQueue( &(fcfsInstance->readyQueue ), dequeueFromWatingQueue( &(fcfsInstance->watingQueue) , temp->pcbPointer) );
+            } 
+            temp=temp->next;
+        }
+
         if(currProcess){
             currProcess->brustTimeremaning--;
             if( currProcess->brustTimeremaning == 0 ){
@@ -111,19 +122,14 @@ int main(){
             }
         }
 
-        queueNode* temp=fcfsInstance->watingQueue->head;
-        if(temp){
-            temp->pcbPointer->inputTimeRemaning--;
-            if(temp->pcbPointer->inputTimeRemaning==0){
-                insertToQueue( &(fcfsInstance->readyQueue ), dequeueFromWatingQueue( &(fcfsInstance->watingQueue) , temp->pcbPointer) );
-            } 
-            temp=temp->next;
-        }
+        
 
         executingTime++;
         
     }
     printProcesses(fcfsInstance);
+    freeQueue(fcfsInstance);
+    freeHashMap(fcfsInstance);
     return 0;
 }
 
@@ -268,4 +274,37 @@ void printProcesses(FCFS* fcfsInstance){
         }
     }
    
+}
+
+void freeQueue(FCFS* fcfsInstance){
+    queueNode* toDelete=fcfsInstance->readyQueue->head;
+    while(fcfsInstance->readyQueue->head){
+        free(toDelete);
+        toDelete=fcfsInstance->readyQueue->head;
+        fcfsInstance->readyQueue->head=fcfsInstance->readyQueue->head->next;
+    }
+    toDelete=fcfsInstance->watingQueue->head;
+    while(fcfsInstance->watingQueue->head){
+        free(toDelete);
+        toDelete=fcfsInstance->watingQueue->head;
+        fcfsInstance->watingQueue->head=fcfsInstance->watingQueue->head->next;
+    }
+    toDelete=fcfsInstance->terminatedQueue->head;
+    while(fcfsInstance->terminatedQueue->head){
+        free(toDelete);
+        toDelete=fcfsInstance->terminatedQueue->head;
+        fcfsInstance->terminatedQueue->head=fcfsInstance->terminatedQueue->head->next;
+    }
+}
+
+void freeHashMap(FCFS* fcfsInstance){
+    PCB* temp;
+    for(int i = 0 ; i < HASHMAP_SIZE ; i++){
+        temp=fcfsInstance->hashMap[i];
+        while(temp){
+            PCB* toDelete = temp;
+            temp=temp->next;
+            free(toDelete);
+        }
+    }
 }
