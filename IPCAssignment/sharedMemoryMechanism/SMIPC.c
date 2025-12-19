@@ -1,49 +1,53 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
+#include<sys/shm.h>
+#include<sys/ipc.h>
 
 int cmp(const void *a, const void *b) {
     return (*(int *)a - *(int *)b);
 }
 
 int main(){
+    key_t key;
+    int shmID;
+    int* shm;
     int n;
     scanf("%d",&n);
-    int arr[n];
 
-    int fd[2];
-    if(pipe(fd) != 0){
-        printf("creating pipe fails\n");
-        return 1;
-    }
+    key = ftok("data",77);
+
+    shmID = shmget(key , sizeof(int)*n , 0666 | IPC_CREAT);
+
+    shm = (int *)shmat(shmID , NULL , 0);
+    
     for(int i = 0 ; i < n ; i++){
-        scanf("%d",&arr[i]);
+        scanf("%d",&shm[i]);
     }
 
     printf("before sorting:\n");
     for(int i = 0 ; i < n ; i++){
-        printf("%d\t",arr[i]);
+        printf("%d\t",shm[i]);
     }
 
     printf("\n");
-
     int id = fork();
 
     if( id == 0 ){
-        qsort(arr , n ,sizeof(int) ,cmp);
-        write(fd[1] , arr , sizeof(int) * n);
+
+        qsort(shm , n ,sizeof(int) ,cmp);
+        shmdt(shm);
+
     }else{
-
-        write(fd[1] , arr, sizeof(int)*n);
+        
         wait(NULL);
-
-        read(fd[0] , arr , sizeof(int)*n);
 
         printf("After sorting:\n");
         for(int i = 0 ; i < n ; i++){
-            printf("%d\t",arr[i]);
+            printf("%d\t",shm[i]);
         }
         printf("\n");
+        shmdt(shm);
     }
     return 0;
 }
