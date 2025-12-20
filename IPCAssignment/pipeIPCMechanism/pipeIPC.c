@@ -30,14 +30,19 @@ int main(){
     int id = fork();
 
     if( id == 0 ){
+        read(fd[0] , arr , sizeof(int) *n);
+        close(fd[0]);
         qsort(arr , n ,sizeof(int) ,cmp);
         write(fd[1] , arr , sizeof(int) * n);
+        close(fd[1]);
     }else{
 
         write(fd[1] , arr, sizeof(int)*n);
+        close(fd[1]);
         wait(NULL);
 
         read(fd[0] , arr , sizeof(int)*n);
+        close(fd[0]);
 
         printf("After sorting:\n");
         for(int i = 0 ; i < n ; i++){
