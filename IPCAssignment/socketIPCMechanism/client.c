@@ -3,6 +3,7 @@
 #include<sys/socket.h>
 #include<sys/types.h>
 #include<netinet/in.h>
+#include<unistd.h>
 
 int main(){
     
@@ -18,7 +19,7 @@ int main(){
         exit(1);
     }
     
-    int choice,amount;
+    int choice,result;
 
     do{
         printf("1. Withdraw\n");
@@ -38,23 +39,28 @@ int main(){
         send( clientSocket , &choice , sizeof(int) , 0);
 
         if(choice == 1 || choice == 2 ){
+            int amount;
             printf("enter Amount:");
             scanf("%d",&amount);
             send(clientSocket , &amount , sizeof(int) , 0);
         }
 
-        recv(clientSocket , &amount , sizeof(int) , 0);
+        recv(clientSocket , &result , sizeof(int) , 0);
 
         if(choice ==1 || choice ==2){
-            printf("Update Balance is :%d\n",amount);
-            continue;
+            if(result==-1){
+                printf("Insufficient Balance\n");
+            }else{
+                printf("Update Balance is :%d\n",result);
+                continue;
+            }
         }else{
-            printf("Your current Balance is: %d\n",amount);
+            printf("Your current Balance is: %d\n",result);
         }
 
     }while(1);
 
-
+    close(clientSocket);
     return 0;
 }
 

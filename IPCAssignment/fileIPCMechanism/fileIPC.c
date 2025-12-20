@@ -24,19 +24,34 @@ int main(){
     int id = fork();
 
     if( id == 0 ){
-        FILE* fp = fopen("data.txt" , "r+");
+        FILE* fp = fopen("data.txt" , "r");
         fread(arr , sizeof(int) , n , fp);
+        fclose(fp);
+
         qsort(arr , n ,sizeof(int) ,cmp);
+
+        fp=fopen("data.txt","w");
+        if(fp==NULL){
+            printf("error in opening file.\n");
+            exit(1);
+        }
         fwrite(arr , sizeof(int) ,n ,fp);
+        fclose(fp);
         fclose(fp);
        
     }else{
 
-        FILE* fp=fopen("data.txt","r+");
+        FILE* fp=fopen("data.txt","w");
+        if(fp==NULL){
+            printf("error in opening file.\n");
+            exit(1);
+        }
         fwrite(arr , sizeof(int) ,n ,fp);
+        fclose(fp);
 
         wait(NULL);
 
+        fp=fopen("data.txt","r");
         fread(arr , sizeof(int) , n , fp);
 
         fclose(fp);

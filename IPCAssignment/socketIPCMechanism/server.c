@@ -4,38 +4,62 @@
 #include<sys/socket.h>
 #include<netinet/in.h>
 #include<pthread.h>
+#include<unistd.h>
 
 pthread_mutex_t serverMutex;
 
-void* clientRequestHandler(void* args){
-    int clientSocket = * ((int *)args);
+void* clientRequestHandler(void* args) {
+    int clientSocket = *((int *)args);
     free(args);
+
+    int choice, amount, balance;
     FILE* fp;
-    int balance,choice , amount;
-    pthread_mutex_lock(&serverMutex);
-    fp = fopen("./resource/accountDB.txt","r+");
-    fscanf(fp , "%d" , &balance);
-    recv(clientSocket , &choice ,sizeof(choice) , 0);
-    if(choice == 1){
-        recv(clientSocket , &amount , sizeof(int) , 0);
-        if( amount > balance){
-            printf("Not enough Balance.\n");
-            return 0;
-        }else{
-            balance -= amount;
-            fwrite(&balance , sizeof(int) , 1 ,fp);
+
+    while (1) {
+        if (recv(clientSocket, &choice, sizeof(int), 0) <= 0)
+            break;
+
+        pthread_mutex_lock(&serverMutex);
+
+        fp = fopen("./resource/accountDB.txt", "r+");
+        if (!fp) {
+            pthread_mutex_unlock(&serverMutex);
+            break;
         }
-    }else if(choice == 2 ){
-        recv(clientSocket , &amount , sizeof(int) , 0);
-        balance+= amount;
-        fwrite(&balance , sizeof(int) , 1 ,fp);
+
+        fscanf(fp, "%d", &balance);
+
+        if (choice == 1) { 
+            recv(clientSocket, &amount, sizeof(int), 0);
+
+            if (amount > balance) {
+                int fail = -1;
+                send(clientSocket, &fail, sizeof(int), 0);
+            } else {
+                balance -= amount;
+                rewind(fp);
+                fprintf(fp, "%d", balance);
+                fflush(fp);
+                send(clientSocket, &balance, sizeof(int), 0);
+            }
+        }
+        else if (choice == 2) { 
+            recv(clientSocket, &amount, sizeof(int), 0);
+            balance += amount;
+            rewind(fp);
+            fprintf(fp, "%d", balance);
+            fflush(fp);
+            send(clientSocket, &balance, sizeof(int), 0);
+        }
+        else if (choice == 3) { 
+            send(clientSocket, &balance, sizeof(int), 0);
+        }
+
+        fclose(fp);
+        pthread_mutex_unlock(&serverMutex);
     }
 
-    send( clientSocket , &balance ,sizeof(int) , 0);
-
-    fclose(fp);
-    pthread_mutex_unlock(&serverMutex);
-
+    close(clientSocket);
     return NULL;
 }
 
@@ -63,6 +87,7 @@ int main(){
         pthread_detach(thread);
     }
 
+    close(serverSocket);
     pthread_mutex_destroy(&serverMutex);
     return 0;
 }
