@@ -299,8 +299,8 @@ void freeQueue(FCFS* fcfsInstance){
 
 void freeHashMap(FCFS* fcfsInstance){
     PCB* temp;
-    for(int i = 0 ; i < HASHMAP_SIZE ; i++){
-        temp=fcfsInstance->hashMap[i];
+    for(int index = 0 ; index < HASHMAP_SIZE ; index++){
+        temp=fcfsInstance->hashMap[index];
         while(temp){
             PCB* toDelete = temp;
             temp=temp->next;
