@@ -4,8 +4,8 @@
 #include<sys/shm.h>
 #include<sys/ipc.h>
 
-int cmp(const void *a, const void *b) {
-    return (*(int *)a - *(int *)b);
+int cmp(const void *elem1, const void *elem2) {
+    return (*(int *)elem1 - *(int *)elem2);
 }
 
 int main(){
@@ -21,13 +21,13 @@ int main(){
 
     shm = (int *)shmat(shmID , NULL , 0);
     
-    for(int i = 0 ; i < n ; i++){
-        scanf("%d",&shm[i]);
+    for(int index = 0 ; index < n ; index++){
+        scanf("%d",&shm[index]);
     }
 
     printf("before sorting:\n");
-    for(int i = 0 ; i < n ; i++){
-        printf("%d\t",shm[i]);
+    for(int index = 0 ; index < n ; index++){
+        printf("%d\t",shm[index]);
     }
 
     printf("\n");
@@ -43,8 +43,8 @@ int main(){
         wait(NULL);
 
         printf("After sorting:\n");
-        for(int i = 0 ; i < n ; i++){
-            printf("%d\t",shm[i]);
+        for(int index = 0 ; index < n ; index++){
+            printf("%d\t",shm[index]);
         }
         printf("\n");
         shmdt(shm);

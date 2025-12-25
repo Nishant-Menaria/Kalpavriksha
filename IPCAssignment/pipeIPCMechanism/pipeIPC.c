@@ -2,8 +2,8 @@
 #include<stdlib.h>
 #include<unistd.h>
 
-int cmp(const void *a, const void *b) {
-    return (*(int *)a - *(int *)b);
+int cmp(const void *elem1, const void *elem2) {
+    return (*(int *)elem1 - *(int *)elem2);
 }
 
 int main(){
@@ -16,13 +16,13 @@ int main(){
         printf("creating pipe fails\n");
         return 1;
     }
-    for(int i = 0 ; i < n ; i++){
-        scanf("%d",&arr[i]);
+    for(int index = 0 ; index < n ; index++){
+        scanf("%d",&arr[index]);
     }
 
     printf("before sorting:\n");
-    for(int i = 0 ; i < n ; i++){
-        printf("%d\t",arr[i]);
+    for(int index = 0 ; index < n ; index++){
+        printf("%d\t",arr[index]);
     }
 
     printf("\n");
@@ -45,8 +45,8 @@ int main(){
         close(fd[0]);
 
         printf("After sorting:\n");
-        for(int i = 0 ; i < n ; i++){
-            printf("%d\t",arr[i]);
+        for(int index = 0 ; index < n ; index++){
+            printf("%d\t",arr[index]);
         }
         printf("\n");
     }

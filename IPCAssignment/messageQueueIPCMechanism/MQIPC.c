@@ -12,8 +12,8 @@ struct message {
     int arr[MAX];     
 };
 
-int cmp(const void *a, const void *b) {
-    return (*(int *)a - *(int *)b);
+int cmp(const void *elem1, const void *elem2) {
+    return (*(int *)elem1 - *(int *)elem2);
 }
 
 int main(){
@@ -26,13 +26,13 @@ int main(){
 
     msgID = msgget(key , 0666 | IPC_CREAT);
     
-    for(int i = 0 ; i < msg.n ; i++){
-        scanf("%d",&msg.arr[i]);
+    for(int index = 0 ; index < msg.n ; index++){
+        scanf("%d",&msg.arr[index]);
     }
 
     printf("before sorting:\n");
-    for(int i = 0 ; i < msg.n ; i++){
-        printf("%d\t",msg.arr[i]);
+    for(int index = 0 ; index < msg.n ; index++){
+        printf("%d\t",msg.arr[index]);
     }
     printf("\n");
 
@@ -54,8 +54,8 @@ int main(){
 
         msgrcv(msgID , &msg , sizeof(msg) - sizeof(long) ,2 , 0);
         printf("After sorting:\n");
-        for(int i = 0 ; i < msg.n ; i++){
-            printf("%d\t",msg.arr[i]);
+        for(int index = 0 ; index < msg.n ; index++){
+            printf("%d\t",msg.arr[index]);
         }
         printf("\n");
         msgctl(msgID , IPC_RMID , NULL);
